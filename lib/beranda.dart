@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/login.dart';
 import 'package:ukk_2025/user/user.dart';
 
@@ -46,7 +47,7 @@ class _BerandaState extends State<Beranda> {
                       Navigator.pushReplacement(
                         context,
                          MaterialPageRoute(
-                          builder: (context) => User(user: widget.user,)
+                          builder: (context) => UserListPage(user: widget.user,)
                         )
                       );
                     },
