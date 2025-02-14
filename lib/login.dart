@@ -100,16 +100,22 @@ class _LoginState extends State<Login> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  height: 100,
-                  width: 100,
+                ClipOval(
+                child: Container(
+                  height: 150,
+                  width: 150,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.only()
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 5
+                    )
                   ),
                   child: Image.asset(
-                    'assets/image/logo.jpg'
+                    'assets/image/logo1.jpg',
+                    fit: BoxFit.cover,
                   ),
+                ),
                 ),
                 SizedBox(height: 80,),
                 TextField(

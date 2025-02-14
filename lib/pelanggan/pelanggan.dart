@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/login.dart';
-import 'package:ukk_2025/user/edituser.dart';
-import 'package:ukk_2025/user/tambahuser.dart';
+import 'package:ukk_2025/pelanggan/editpelanggan.dart';
+import 'package:ukk_2025/pelanggan/tambahpelanggan.dart';
+import 'package:ukk_2025/produk/produk.dart';
+import 'package:ukk_2025/user/user.dart';
 
-
-class UserListPage extends StatefulWidget {
+class PelangganListPage extends StatefulWidget {
   final Map user;
-  const UserListPage({super.key, required this.user});
+  const PelangganListPage({super.key, required this.user});
 
   @override
-  State<UserListPage> createState() => _UserListPageState();
+  State<PelangganListPage> createState() => _PelangganListPageState();
 }
 
-class _UserListPageState extends State<UserListPage> {
-  List<Map<String, dynamic>> user = [];
+class _PelangganListPageState extends State<PelangganListPage> {
+  List<Map<String, dynamic>> Pelanggan = [];
   List<Map<String, dynamic>> User = [];
   String _searchQuery = "";
   final TextEditingController _searchController = TextEditingController();
@@ -22,7 +23,7 @@ class _UserListPageState extends State<UserListPage> {
   @override
   void initState() {
     super.initState();
-    initialis();
+    fetch();
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text.toLowerCase();
@@ -30,57 +31,67 @@ class _UserListPageState extends State<UserListPage> {
     });
   }
 
-  Future<void> initialis() async {
+  Future<void> fetch() async {
     try {
-      final response = await Supabase.instance.client.from('user').select();
+      final response =
+          await Supabase.instance.client.from('pelanggan').select();
       // print('Response from Supabase: $response');
       setState(() {
-        user = List<Map<String, dynamic>>.from(response);
+        Pelanggan = List<Map<String, dynamic>>.from(response);
       });
     } catch (e) {
       print("Error fetching data: $e");
     }
   }
 
-  Future<void> hapususer(String Username) async {
+  Future<void> tambahpelanggan(
+      String NamaPelanggan, String Alamat, String NomorTelepon) async {
     try {
-      final response = await Supabase.instance.client
-          .from('user')
-          .delete()
-          .eq('Username', Username);
-      if (response != null) {
+      final response = await Supabase.instance.client.from('pelanggan').insert([
+        {
+          'NamaPelanggan': NamaPelanggan,
+          'Alamat': Alamat,
+          'NomorTelepon': NomorTelepon
+        }
+      ]);
+      if (response == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User berhasil dihapus')),
+          SnackBar(
+            content: Text('Registrasi berhasil.'),
+            backgroundColor: Colors.green,
+          ),
         );
-        initialis();
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Registrasi tidak berhasil'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menghapus user: $e')),
+        SnackBar(content: Text('Terjadi kesalahan: $Error')),
       );
     }
   }
 
-  Future<void> tambahuser(String username, String password) async {
+  Future<void> hapuspelanggan(int PelangganId) async {
     try {
-      final response = await Supabase.instance.client.from('user').insert([
-        {
-          'Username': username,
-          'Password': password,
-        }
-      ]);
+      final response = await Supabase.instance.client
+          .from('pelanggan')
+          .delete()
+          .eq('PelangganID', PelangganId);
       if (response != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registrasi berhasil! Silakan login.')),
+          SnackBar(content: Text('Produk berhasil dihapus')),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Login()),
-        );
+        fetch();
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registrasi gagal: $e')),
+        SnackBar(content: Text('Gagal menghapus produk: $e')),
       );
     }
   }
@@ -111,17 +122,32 @@ class _UserListPageState extends State<UserListPage> {
                   ),
                 ),
               ),
+              widget.user['Role'] == 'admin'
+                  ? ListTile(
+                      leading: Icon(Icons.person_add),
+                      title: Text('daftar petugas'),
+                      onTap: () {
+                        Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => UserListPage(
+                              user: widget.user,
+                            )),
+                  );
+                      },
+                    )
+                  : SizedBox(),
               ListTile(
                 leading: Icon(Icons.shopping_cart),
                 title: Text('daftar produk'),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) => Produk(
-                  //             user: widget.user,
-                  //           )),
-                  // );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Produk(
+                              user: widget.user,
+                            )),
+                  );
                 },
               ),
               ListTile(
@@ -155,7 +181,7 @@ class _UserListPageState extends State<UserListPage> {
           title: TextField(
             controller: _searchController,
             decoration: InputDecoration(
-                hintText: "Cari Petugas",
+                hintText: "Cari Pelanggan",
                 prefixIcon: Icon(
                   Icons.search,
                   color: Colors.grey,
@@ -171,29 +197,38 @@ class _UserListPageState extends State<UserListPage> {
           foregroundColor: Colors.white,
           actions: [
             IconButton(
-              onPressed: initialis,
+              onPressed: fetch,
               icon: const Icon(Icons.refresh),
               color: Color(0xFFFAF3E0),
             ),
           ],
         ),
-        body: user.isEmpty
+        body: Pelanggan.isEmpty
             ? const Center(
                 child: CircularProgressIndicator(),
               )
             : ListView.builder(
-                itemCount: user.where((user) {
-                  final username = user['Username']?.toLowerCase() ?? '';
-                  return username.startsWith(_searchQuery);
+                itemCount: Pelanggan.where((pelanggan) {
+                  final nama = pelanggan['NamaPelanggan']?.toLowerCase() ?? '';
+                  final alamat = pelanggan['Alamat']?.toLowerCase() ?? '';
+                  final nomor = pelanggan['NomorTelepon']?.toLowerCase() ?? '';
+                  return nama.startsWith(_searchQuery) ||
+                      alamat.contains(_searchQuery) ||
+                      nomor.startsWith(_searchQuery);
                 }).length,
                 itemBuilder: (context, index) {
-                  final filtereduser = user.where((user) {
+                  final filteredPelanggan = Pelanggan.where((pelanggan) {
                     final nama =
-                        user['Username']?.toLowerCase() ?? '';
-                    return nama.contains(_searchQuery);
+                        pelanggan['NamaPelanggan']?.toLowerCase() ?? '';
+                    final alamat = pelanggan['Alamat']?.toLowerCase() ?? '';
+                    final nomor =
+                        pelanggan['NomorTelepon']?.toLowerCase() ?? '';
+                    return nama.contains(_searchQuery) ||
+                        alamat.contains(_searchQuery) ||
+                        nomor.startsWith(_searchQuery);
                   }).toList();
 
-                  final petugas = filtereduser[index];
+                  final pelanggan = filteredPelanggan[index];
 
                   return Card(
                     margin:
@@ -207,7 +242,7 @@ class _UserListPageState extends State<UserListPage> {
                     ),
                     child: ListTile(
                       title: Text(
-                        petugas['Username'] ?? 'No Name',
+                        pelanggan['NamaPelanggan'] ?? 'No Name',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
@@ -217,11 +252,15 @@ class _UserListPageState extends State<UserListPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            petugas['Role'] ?? 'No Role',
+                            pelanggan['Alamat'] ?? 'No Alamat',
                             style: TextStyle(
                               fontSize: 14,
                             ),
                           ),
+                          Text(
+                            pelanggan['NomorTelepon'] ?? 'No Nomor',
+                            style: TextStyle(fontSize: 12),
+                          )
                         ],
                       ),
                       trailing: Row(
@@ -233,10 +272,10 @@ class _UserListPageState extends State<UserListPage> {
                                     var result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => Edituser(
-                                                user: petugas,)));
+                                            builder: (context) => Editpelanggan(
+                                                pelanggan: pelanggan)));
                                     if (result == 'success') {
-                                      initialis();
+                                      fetch();
                                     }
                                   },
                                   icon: const Icon(
@@ -253,7 +292,7 @@ class _UserListPageState extends State<UserListPage> {
                                         return AlertDialog(
                                           title: Text('Konfirmasi'),
                                           content: Text(
-                                              'Apakah Anda yakin ingin menghapus user ini?'),
+                                              'Apakah Anda yakin ingin menghapus pelanggan ini?'),
                                           actions: [
                                             TextButton(
                                               onPressed: () =>
@@ -262,7 +301,7 @@ class _UserListPageState extends State<UserListPage> {
                                             ),
                                             TextButton(
                                               onPressed: () {
-                                                initialis();
+                                                fetch();
                                                 Navigator.pop(context, true);
                                               },
                                               child: Text('Hapus'),
@@ -272,7 +311,7 @@ class _UserListPageState extends State<UserListPage> {
                                       },
                                     );
                                     if (confirm == true) {
-                                      hapususer(petugas['Username']);
+                                      hapuspelanggan(pelanggan['PelangganID']);
                                     }
                                   },
                                   icon: const Icon(
@@ -288,7 +327,7 @@ class _UserListPageState extends State<UserListPage> {
         floatingActionButton: widget.user['Role'] == 'admin'
             ? FloatingActionButton(
                 onPressed: () {
-                  _AddUser(context);
+                  _AddPelanggan(context);
                 },
                 child: const Icon(
                   Icons.add,
@@ -299,24 +338,19 @@ class _UserListPageState extends State<UserListPage> {
             : null);
   }
 
-  void _AddUser(BuildContext context) async {
+  void _AddPelanggan(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return Tambahuser(onAddUser: (
-          Username,
-          Password,
-        ) {
-          tambahuser(
-            Username,
-            Password,
-          );
+        return Tambahpelanggan(
+            onAddpelanggan: (NamaPelanggan, Alamat, NomorTelepon) {
+          tambahpelanggan(NamaPelanggan, Alamat, NomorTelepon);
           Navigator.pop(context, true);
         });
       },
     );
     if (result == true) {
-      initialis();
+      fetch();
     }
   }
 }

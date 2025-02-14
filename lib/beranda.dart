@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/login.dart';
+import 'package:ukk_2025/pelanggan/pelanggan.dart';
+import 'package:ukk_2025/produk/produk.dart';
 import 'package:ukk_2025/user/user.dart';
 
 class Beranda extends StatefulWidget {
@@ -41,8 +42,8 @@ class _BerandaState extends State<Beranda> {
             ),
             widget.user['Role'] == 'admin'
                 ? ListTile(
-                    leading: Icon(Icons.person_add),
-                    title: Text('register petugas'),
+                    leading: Icon(Icons.person_search),
+                    title: Text('daftar petugas'),
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
@@ -57,13 +58,13 @@ class _BerandaState extends State<Beranda> {
               leading: Icon(Icons.person_search),
               title: Text('daftar pelanggan'),
               onTap: () {
-                // Navigator.pushReplacement(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => PelangganListPage(
-                //             user: widget.user,
-                //           )),
-                // );
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PelangganListPage(
+                            user: widget.user,
+                          )),
+                );
               },
             ),
             ListTile(
@@ -81,10 +82,10 @@ class _BerandaState extends State<Beranda> {
             ),
             ListTile(
               onTap: () {
-                // Navigator.pushReplacement(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) => Produk(user: widget.login)));
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Produk(user: widget.user)));
               },
               leading: Icon(Icons.shopping_cart),
               title: Text('Daftar Produk')

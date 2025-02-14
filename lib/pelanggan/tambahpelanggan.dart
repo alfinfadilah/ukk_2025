@@ -1,44 +1,41 @@
-import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class Tambahuser extends StatefulWidget {
-  const Tambahuser({super.key, required this.onAddUser});
+class Tambahpelanggan extends StatefulWidget {
+  const Tambahpelanggan({super.key, required this.onAddpelanggan});
 
-  final Function(String,String) onAddUser;
-  
+  final Function(String, String, String) onAddpelanggan;
+
   @override
-  State<Tambahuser> createState() => _TambahuserState();
+  State<Tambahpelanggan> createState() => _TambahpelangganState();
 }
 
-class _TambahuserState extends State<Tambahuser> {
-  final GlobalKey<FormState> _formkey = GlobalKey();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final SingleValueDropDownController _roleController = SingleValueDropDownController();
+class _TambahpelangganState extends State<Tambahpelanggan> {
+ final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  final TextEditingController _namapelangganController =
+      TextEditingController();
+  final TextEditingController _alamatController = TextEditingController();
+  final TextEditingController _notlpController = TextEditingController();
 
-  Future<void> tambahuser(
-      String username, String password, String role) async {
+  Future<void> tambahpelanggan(
+      String NamaPelanggan, String Alamat, String notlp) async {
     try {
-      final response = await Supabase.instance.client.from('user').insert([
-        {'Username': username, 'Password': password, 'Role': role}
+      await Supabase.instance.client.from('pelanggan').insert([
+        {
+          'NamaPelanggan': NamaPelanggan,
+          'Alamat': Alamat,
+          'NomorTelepon': notlp
+        }
       ]);
-      if (response == null) {
+  
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Registrasi berhasil! Silakan login.'),
+            content: Text('Registrasi berhasil.'),
             backgroundColor: Colors.green,
           ),
         );
         Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Registrasi tidak berhasil'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Terjadi kesalahan: $Error')),
@@ -51,7 +48,7 @@ class _TambahuserState extends State<Tambahuser> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Color(0xFF003366),
+        backgroundColor: const Color(0xFF003366),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -75,7 +72,7 @@ class _TambahuserState extends State<Tambahuser> {
                   height: 100,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    shape: BoxShape.circle
+                    shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.person,
@@ -83,73 +80,81 @@ class _TambahuserState extends State<Tambahuser> {
                     color: Colors.lightBlue,
                   ),
                 ),
-                SizedBox(height: 30,),
+                SizedBox(
+                  height: 30,
+                ),
                 Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100),
                       color: Colors.white),
                   child: TextFormField(
-                    controller: _usernameController,
+                    controller: _namapelangganController,
                     decoration: InputDecoration(
-                        labelText: 'Username',
+                        labelText: 'Nama Pelanggan',
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(100)),
                         fillColor: Colors.white,
                         prefixIcon: Icon(Icons.email)),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'username tidak boleh kosong';
+                        return 'nama tidak boleh kosong';
                       }
                       return null;
                     },
                   ),
                 ),
-                SizedBox(height: 15,),
+                SizedBox(
+                  height: 30,
+                ),
                 Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100),
                       color: Colors.white),
                   child: TextFormField(
-                    controller: _passwordController,
+                    controller: _alamatController,
                     decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: 'Alamat',
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(100)),
                         fillColor: Colors.white,
-                        prefixIcon: Icon(Icons.email)),
+                        prefixIcon: Icon(Icons.home)),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'password tidak boleh kosong';
+                        return 'alamat tidak boleh kosong';
                       }
                       return null;
                     },
                   ),
                 ),
-                SizedBox(height: 15,),
+                SizedBox(
+                  height: 30,
+                ),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white
-                  ),
-                  child: DropDownTextField(
-                    controller: _roleController,
-                    textFieldDecoration: const InputDecoration(
-                      labelText: 'Role',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.remove_red_eye)
-                    ),
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.white),
+                  child: TextFormField(
+                    controller: _notlpController,
+                    decoration: InputDecoration(
+                        labelText: 'Nomor Telepon',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(100)),
+                        fillColor: Colors.white,
+                        prefixIcon: Icon(Icons.phone)),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Role tidak boleh kosong';
+                        return 'no tlp tidak boleh kosong';
                       }
                       return null;
                     },
-                    dropDownItemCount: 1,
-                    dropDownList: [
-                      DropDownValueModel(name: 'petugas', value: 'petugas'),
-                    ],
                   ),
                 ),
-                SizedBox(height: 15,),
+                SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -160,26 +165,34 @@ class _TambahuserState extends State<Tambahuser> {
                         ),
                         backgroundColor: Colors.blue),
                     onPressed: () async {
-                      final username = _usernameController.text.trim();
-                      final password = _passwordController.text.trim();
-                      final role =
-                          _roleController.dropDownValue!.value;
+                      final NamaPelanggan =
+                          _namapelangganController.text.trim();
+                      final Alamat = _alamatController.text.trim();
+                      final NomorTelepon = _notlpController.text.trim();
 
-                      if (username.isEmpty || password.isEmpty || role.isEmpty) {
+                      if (NamaPelanggan.isEmpty ||
+                          Alamat.isEmpty ||
+                          NomorTelepon.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text(
-                                  'Username, Role dan Password tidak boleh kosong')),
+                            content: Text(
+                                  'nama, alamat, dan no tlp tidak boleh kosong'
+                            )
+                          ),
                         );
                         return;
-                      }
-                      await tambahuser(username, password, role);
+                      } 
+                      await tambahpelanggan(
+                          NamaPelanggan, Alamat, NomorTelepon);
                     },
                     child: Text(
-                      "Daftarkan",
+                      "Tambah",
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
+                ),
+                SizedBox(
+                  height: 20,
                 ),
               ],
             ),
