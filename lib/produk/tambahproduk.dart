@@ -19,21 +19,45 @@ class _TambahprodukState extends State<Tambahproduk> {
   final TextEditingController _stokController = TextEditingController();
   final SingleValueDropDownController _jenisController = SingleValueDropDownController();
 
-  Future<void> tambah(
-      String NamaProduk, String Harga, String Stok, String Jenis) async {
-    final response = await Supabase.instance.client.from('produk').insert([
-      {'NamaProduk': NamaProduk, 'Harga': Harga, 'Stok': Stok, 'Jenis': Jenis}
-    ]);
-
-    if (response == null) {
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Eror menambahkan barang')),
-      );
-    }
+  Future<bool> cekNamaBarang(String namaBarang) async {
+    final response = await Supabase.instance.client
+        .from('produk')
+        .select()
+        .eq('NamaProduk', namaBarang).maybeSingle();
+        return response != null;
   }
 
+  Future<void> tambah(
+      String NamaProduk, String Harga, String Stok, String Jenis) async {
+    try {
+    bool exists = await cekNamaBarang(NamaProduk);
+
+    if (exists) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('produk sudah ada, tambahkan produk lain')),
+      );
+      return;
+    }
+
+    final response = await Supabase.instance.client.from('produk').insert([
+      {'NamaProduk': NamaProduk, 'Harga': Harga, 'Stok': Stok, 'Jenis': Jenis}
+    ]).select();
+
+    if (response.isNotEmpty) {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menambahkan produk')),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Terjadi kesalahan: $e')),
+    );
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,7 +178,7 @@ class _TambahprodukState extends State<Tambahproduk> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formkey.currentState?.validate() ?? false) {
-                          widget.onAddBarang(
+                          tambah(
                               _namaprodukController.text,
                               _hargaController.text,
                               _stokController.text,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ukk_2025/login.dart';
 import 'package:ukk_2025/pelanggan/pelanggan.dart';
+import 'package:ukk_2025/penjualan/penjualan.dart';
 import 'package:ukk_2025/produk/produk.dart';
 import 'package:ukk_2025/user/user.dart';
 
@@ -71,13 +72,13 @@ class _BerandaState extends State<Beranda> {
               leading: Icon(Icons.pageview),
               title: Text('daftar penjualan'),
               onTap: () {
-                // Navigator.pushReplacement(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => Penjualan(
-                //             login: widget.user,
-                //           )),
-                // );
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Penjualan(
+                            login: widget.user,
+                          )),
+                );
               },
             ),
             ListTile(

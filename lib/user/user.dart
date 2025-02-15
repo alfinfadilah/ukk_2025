@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ukk_2025/beranda.dart';
 import 'package:ukk_2025/login.dart';
+import 'package:ukk_2025/pelanggan/pelanggan.dart';
+import 'package:ukk_2025/penjualan/penjualan.dart';
+import 'package:ukk_2025/produk/produk.dart';
 import 'package:ukk_2025/user/edituser.dart';
 import 'package:ukk_2025/user/tambahuser.dart';
 
@@ -111,30 +115,53 @@ class _UserListPageState extends State<UserListPage> {
                   ),
                 ),
               ),
+               ListTile(
+              leading: Icon(Icons.person_search),
+              title: Text('daftar pelanggan'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PelangganListPage(
+                            user: widget.user,
+                          )),
+                );
+              },
+            ),
               ListTile(
                 leading: Icon(Icons.shopping_cart),
                 title: Text('daftar produk'),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) => Produk(
-                  //             user: widget.user,
-                  //           )),
-                  // );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Produk(
+                              user: widget.user,
+                            )),
+                  );
                 },
               ),
               ListTile(
                 leading: Icon(Icons.pageview),
                 title: Text('daftar penjualan'),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) => Penjualan(
-                  //             login: widget.user,
-                  //           )),
-                  // );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Penjualan(
+                              login: widget.user,
+                            )),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.home),
+                title: Text('Beranda'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Beranda(user: widget.user,)),
+                  );
                 },
               ),
               ListTile(

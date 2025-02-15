@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ukk_2025/beranda.dart';
 import 'package:ukk_2025/login.dart';
 import 'package:ukk_2025/pelanggan/pelanggan.dart';
+import 'package:ukk_2025/penjualan/penjualan.dart';
 import 'package:ukk_2025/produk/editproduk.dart';
 import 'package:ukk_2025/produk/tambahproduk.dart';
 import 'package:ukk_2025/user/user.dart';
@@ -269,15 +271,25 @@ class _ProdukState extends State<Produk> {
               leading: Icon(Icons.pageview),
               title: Text('daftar penjualan'),
               onTap: () {
-                // Navigator.pushReplacement(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => Penjualan(
-                //             login: widget.user,
-                //           )),
-                // );
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Penjualan(
+                            login: widget.user,
+                          )),
+                );
               },
             ),
+            ListTile(
+                leading: Icon(Icons.home),
+                title: Text('Beranda'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Beranda(user: widget.user,)),
+                  );
+                },
+              ),
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Logout'),

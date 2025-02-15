@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ukk_2025/beranda.dart';
 import 'package:ukk_2025/login.dart';
 import 'package:ukk_2025/pelanggan/editpelanggan.dart';
 import 'package:ukk_2025/pelanggan/tambahpelanggan.dart';
+import 'package:ukk_2025/penjualan/penjualan.dart';
 import 'package:ukk_2025/produk/produk.dart';
 import 'package:ukk_2025/user/user.dart';
 
@@ -124,7 +126,7 @@ class _PelangganListPageState extends State<PelangganListPage> {
               ),
               widget.user['Role'] == 'admin'
                   ? ListTile(
-                      leading: Icon(Icons.person_add),
+                      leading: Icon(Icons.person_search),
                       title: Text('daftar petugas'),
                       onTap: () {
                         Navigator.pushReplacement(
@@ -154,13 +156,23 @@ class _PelangganListPageState extends State<PelangganListPage> {
                 leading: Icon(Icons.pageview),
                 title: Text('daftar penjualan'),
                 onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) => Penjualan(
-                  //             login: widget.user,
-                  //           )),
-                  // );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Penjualan(
+                              login: widget.user,
+                            )),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.home),
+                title: Text('Beranda'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Beranda(user: widget.user,)),
+                  );
                 },
               ),
               ListTile(
