@@ -37,7 +37,6 @@ class _PelangganListPageState extends State<PelangganListPage> {
     try {
       final response =
           await Supabase.instance.client.from('pelanggan').select();
-      // print('Response from Supabase: $response');
       setState(() {
         Pelanggan = List<Map<String, dynamic>>.from(response);
       });
@@ -245,12 +244,12 @@ class _PelangganListPageState extends State<PelangganListPage> {
                   return Card(
                     margin:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    color: Colors.white, // White card background
+                    color: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: const BorderSide(
                           color: Color(0xFF003366),
-                          width: 1), // Navy blue border
+                          width: 1),
                     ),
                     child: ListTile(
                       title: Text(

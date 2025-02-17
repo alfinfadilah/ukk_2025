@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ukk_2025/login.dart';
 
 class Myhome extends StatefulWidget {
-  const Myhome({super.key});
+  final Map user;
+  const Myhome({super.key, required this.user});
 
   @override
   State<Myhome> createState() => _MyhomeState();
@@ -35,20 +36,33 @@ class _MyhomeState extends State<Myhome> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  height: 100,
-                  width: 100,
+                ClipOval(
+                child: Container(
+                  height: 150,
+                  width: 150,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    shape: BoxShape.circle
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 5
+                    )
                   ),
-                  child: Icon(
-                    Icons.person,
-                    size: 50,
-                    color: Colors.lightBlue,
+                  child: Image.asset(
+                    'assets/image/logo1.jpg',
+                    fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 50,),
+                ),
+                SizedBox(height: 30,),
+                Text(
+                  'Login ke Platform Kasir Waroeng Pocjok',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 30,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 60,),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(

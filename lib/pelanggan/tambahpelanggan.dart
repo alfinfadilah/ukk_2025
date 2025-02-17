@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Tambahpelanggan extends StatefulWidget {
@@ -11,7 +12,6 @@ class Tambahpelanggan extends StatefulWidget {
 }
 
 class _TambahpelangganState extends State<Tambahpelanggan> {
- final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final TextEditingController _namapelangganController =
       TextEditingController();
   final TextEditingController _alamatController = TextEditingController();
@@ -135,6 +135,7 @@ class _TambahpelangganState extends State<Tambahpelanggan> {
                       color: Colors.white),
                   child: TextFormField(
                     controller: _notlpController,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: InputDecoration(
                         labelText: 'Nomor Telepon',
                         border: OutlineInputBorder(
@@ -181,7 +182,7 @@ class _TambahpelangganState extends State<Tambahpelanggan> {
                           ),
                         );
                         return;
-                      } 
+                        }
                       await tambahpelanggan(
                           NamaPelanggan, Alamat, NomorTelepon);
                     },

@@ -46,7 +46,6 @@ class _ProdukState extends State<Produk> {
   Future<void> initializeData() async {
     try {
       final response = await Supabase.instance.client.from('produk').select();
-      // print('Response from Supabase: $response');
       setState(() {
         Barang = List<Map<String, dynamic>>.from(response);
       });

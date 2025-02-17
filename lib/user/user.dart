@@ -37,7 +37,6 @@ class _UserListPageState extends State<UserListPage> {
   Future<void> initialis() async {
     try {
       final response = await Supabase.instance.client.from('user').select();
-      // print('Response from Supabase: $response');
       setState(() {
         user = List<Map<String, dynamic>>.from(response);
       });
@@ -75,7 +74,7 @@ class _UserListPageState extends State<UserListPage> {
       ]);
       if (response != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registrasi berhasil! Silakan login.')),
+          SnackBar(content: Text('Registrasi berhasil.')),
         );
         Navigator.pushReplacement(
           context,
@@ -217,7 +216,7 @@ class _UserListPageState extends State<UserListPage> {
                   final filtereduser = user.where((user) {
                     final nama =
                         user['Username']?.toLowerCase() ?? '';
-                    return nama.contains(_searchQuery);
+                    return nama.startsWith(_searchQuery);
                   }).toList();
 
                   final petugas = filtereduser[index];
@@ -225,12 +224,12 @@ class _UserListPageState extends State<UserListPage> {
                   return Card(
                     margin:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    color: Colors.white, // White card background
+                    color: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: const BorderSide(
                           color: Color(0xFF003366),
-                          width: 1), // Navy blue border
+                          width: 1),
                     ),
                     child: ListTile(
                       title: Text(

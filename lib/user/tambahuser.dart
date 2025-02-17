@@ -12,14 +12,29 @@ class Tambahuser extends StatefulWidget {
 }
 
 class _TambahuserState extends State<Tambahuser> {
-  final GlobalKey<FormState> _formkey = GlobalKey();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final SingleValueDropDownController _roleController = SingleValueDropDownController();
 
+  Future<bool> cekNamauser(String namaBarang) async {
+    final response = await Supabase.instance.client
+        .from('user')
+        .select()
+        .eq('Username', namaBarang).maybeSingle();
+        return response != null;
+  }
+
   Future<void> tambahuser(
       String username, String password, String role) async {
     try {
+      bool exists = await cekNamauser(username);
+
+    if (exists) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('username sudah ada, pilih username lain')),
+      );
+      return;
+    }
       final response = await Supabase.instance.client.from('user').insert([
         {'Username': username, 'Password': password, 'Role': role}
       ]);
@@ -111,6 +126,7 @@ class _TambahuserState extends State<Tambahuser> {
                       color: Colors.white),
                   child: TextFormField(
                     controller: _passwordController,
+                    obscureText: true,
                     decoration: InputDecoration(
                         labelText: 'Password',
                         border: OutlineInputBorder(

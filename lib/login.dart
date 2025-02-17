@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/beranda.dart';
+import 'package:ukk_2025/splashscreen.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -61,7 +62,7 @@ class _LoginState extends State<Login> {
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Terjadi kesalahan'),
+          content: Text('Username atau Password salah'),
           backgroundColor: Colors.red,
         ),
       );

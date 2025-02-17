@@ -38,10 +38,9 @@ class _PdfGeneratorState extends State<PdfGenerator> {
   Future<void> generateAndPrintPDF(String penjualanId) async {
     final pdf = pw.Document();
     
-    // Ambil data penjualan dari Supabase
     var responseSales = await Supabase.instance.client
         .from('penjualan')
-        .select('*, pelanggan(*)')
+        .select('*, pelanggan(*), user(*)')
         .eq('PenjualanID', penjualanId)
         .single();
     
@@ -57,9 +56,14 @@ class _PdfGeneratorState extends State<PdfGenerator> {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text("Invoice Penjualan", style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+              pw.Text("Struck Penjualan", style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 10),
-              pw.Text("Pelanggan: ${responseSales['pelanggan']['NamaPelanggan']}", style: pw.TextStyle(fontSize: 18)),
+              pw.Text(
+                "Pelanggan: ${responseSales['pelanggan']['NamaPelanggan']}", style: pw.TextStyle(fontSize: 18)),
+              pw.SizedBox(height: 10),
+              pw.Text(
+                "Petugas Kasir: ${responseSales['user']['Username']}", style: pw.TextStyle(fontSize: 18)),
+              pw.SizedBox(height: 10),
               pw.Text("Tanggal: ${responseSales['TanggalPenjualan']}", style: pw.TextStyle(fontSize: 16)),
               pw.SizedBox(height: 10),
               pw.Table.fromTextArray(

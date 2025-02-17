@@ -24,6 +24,7 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
   List detailPenjualan = [];
   List produk = [];
   List pelanggan = [];
+  List user = [];
   String _searchQuery = "";
   final TextEditingController _searchController = TextEditingController();
 
@@ -36,25 +37,26 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
         .from('pelanggan')
         .select()
         .order('PelangganID', ascending: true);
+    var myuser =
+        await Supabase.instance.client.from('user').select().order('Username');
 
     var responseSales = await Supabase.instance.client
         .from('penjualan')
-        .select('*, pelanggan(*)');
+        .select('*, pelanggan(*), user(*)');
     var responseSalesDetail = await Supabase.instance.client
         .from('detailpenjualan')
-        .select('*, penjualan(*, pelanggan(*)), produk(*)');
-    // print(responseSalesDetail);
+        .select('*, penjualan(*, pelanggan(*), user(*)), produk(*)');
     setState(() {
       penjualan = responseSales;
       detailPenjualan = responseSalesDetail;
       produk = myProduk;
       pelanggan = myCustomer;
+      user = myuser;
     });
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     fetchSales();
     _searchController.addListener(() {
@@ -137,6 +139,18 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
                           Text('${tanggalPenjualan}')
                         ],
                       ),
+                      Row(
+                        children: [
+                          Icon(Icons.person),
+                          SizedBox(
+                            width: 30,
+                          ),
+                          Text(penjualan[index]['Username'] == null
+                            ? ''
+                            : '${penjualan[index]['user']['Username']}'
+                          )
+                        ],
+                      )
                     ],
                   ),
                   Spacer(),
@@ -150,7 +164,12 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => PdfGenerator(cetak: widget.login, penjualanId: penjualan[index]['PenjualanID'].toString(),)),
+                                builder: (context) => PdfGenerator(
+                                      cetak: widget.login,
+                                      penjualanId: penjualan[index]
+                                              ['PenjualanID']
+                                          .toString(),
+                                    )),
                           );
                         },
                       )
@@ -168,7 +187,7 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
   generateSalesDetail() {
     return GridView.count(
       crossAxisCount: 1,
-      childAspectRatio: 2,
+      childAspectRatio: 1.5,
       children: [
         ...List.generate(detailPenjualan.length, (index) {
           var tanggalPenjualan = DateFormat('dd MMMM yyyy').format(
@@ -228,6 +247,18 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
                     Text('${tanggalPenjualan}'),
                   ],
                 ),
+                SizedBox(height: 20,),
+                Row(
+                  children: [
+                    Icon(Icons.person),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Text(detailPenjualan[index]['Username'] == null
+                        ? ''
+                        : '${detailPenjualan[index]['penjualan']['user']['Username']}')
+                  ],
+                )
               ],
             ),
           );
@@ -340,7 +371,7 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                Navigator.pop(context); // Tutup Drawer
+                Navigator.pop(context);
                 Navigator.pushReplacement(
                     context, MaterialPageRoute(builder: (context) => Login()));
               },
@@ -384,6 +415,7 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
                           produk: produk,
                           pelanggan: pelanggan,
                           login: widget.login,
+                          user: user,
                         )));
             if (jual == 'success') {
               fetchSales();
