@@ -1,6 +1,7 @@
 import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:bcrypt/bcrypt.dart';
 
 class Tambahuser extends StatefulWidget {
   const Tambahuser({super.key, required this.onAddUser});
@@ -35,8 +36,12 @@ class _TambahuserState extends State<Tambahuser> {
       );
       return;
     }
+
+    String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
+
       final response = await Supabase.instance.client.from('user').insert([
-        {'Username': username, 'Password': password, 'Role': role}
+        {'Username': username, 'Password': hashedPassword, 'Role': role}
       ]);
       if (response == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -132,7 +137,7 @@ class _TambahuserState extends State<Tambahuser> {
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(100)),
                         fillColor: Colors.white,
-                        prefixIcon: Icon(Icons.email)),
+                        prefixIcon: Icon(Icons.password)),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'password tidak boleh kosong';

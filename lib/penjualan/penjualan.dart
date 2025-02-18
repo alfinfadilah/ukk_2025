@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -65,11 +66,17 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
       });
     });
     myTabControl = TabController(length: 2, vsync: this);
+    Timer.periodic(Duration(seconds: 1), (timer) {
+    if (mounted) {
+      fetchSales();
+    } else {
+      timer.cancel();
+    }
+  });
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     myTabControl?.dispose();
   }
@@ -108,7 +115,7 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
                           ),
                           Text(penjualan[index]['PelangganID'] == null
                               ? 'Pelanggan tidak terdaftar'
-                              : '${penjualan[index]['pelanggan']['NamaPelanggan']} (${penjualan[index]['pelanggan']['NomorTelepon']})')
+                              : '${penjualan[index]['pelanggan']['NamaPelanggan']} (${penjualan[index]['pelanggan']['NomorTelepon']}) (${penjualan[index]['pelanggan']['Member']})')
                         ],
                       ),
                       SizedBox(
@@ -207,7 +214,7 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
                     Text(detailPenjualan[index]['penjualan']['PelangganID'] ==
                             null
                         ? 'Pelanggan tidak terdaftar'
-                        : '${detailPenjualan[index]['penjualan']['pelanggan']['NamaPelanggan']} (${detailPenjualan[index]['penjualan']['pelanggan']['NomorTelepon']})'),
+                        : '${detailPenjualan[index]['penjualan']['pelanggan']['NamaPelanggan']} (${detailPenjualan[index]['penjualan']['pelanggan']['NomorTelepon']}) (${detailPenjualan[index]['penjualan']['pelanggan']['Member']})'),
                   ],
                 ),
                 SizedBox(

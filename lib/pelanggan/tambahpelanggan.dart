@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:dropdown_textfield/dropdown_textfield.dart';
+import 'package:dropdown_textfield/dropdown_textfield.dart';
 
 class Tambahpelanggan extends StatefulWidget {
   const Tambahpelanggan({super.key, required this.onAddpelanggan});
 
-  final Function(String, String, String) onAddpelanggan;
+  final Function(String, String, String, String) onAddpelanggan;
 
   @override
   State<Tambahpelanggan> createState() => _TambahpelangganState();
@@ -16,15 +18,17 @@ class _TambahpelangganState extends State<Tambahpelanggan> {
       TextEditingController();
   final TextEditingController _alamatController = TextEditingController();
   final TextEditingController _notlpController = TextEditingController();
+  final SingleValueDropDownController _memberController = SingleValueDropDownController();
 
   Future<void> tambahpelanggan(
-      String NamaPelanggan, String Alamat, String notlp) async {
+      String NamaPelanggan, String Alamat, String notlp, Member) async {
     try {
       await Supabase.instance.client.from('pelanggan').insert([
         {
           'NamaPelanggan': NamaPelanggan,
           'Alamat': Alamat,
-          'NomorTelepon': notlp
+          'NomorTelepon': notlp,
+          'Member' : Member
         }
       ]);
   
@@ -151,10 +155,42 @@ class _TambahpelangganState extends State<Tambahpelanggan> {
                   ),
                 ),
                 SizedBox(
-                  height: 10,
+                  height: 30,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.white),
+                  child: DropDownTextField(
+                    controller: _memberController,
+                    clearOption: true,
+                    enableSearch: false,
+                    dropDownList: [
+                      DropDownValueModel(name: 'platinum', value: 'platinim'),
+                      DropDownValueModel(name: 'gold', value: 'gold'),
+                      DropDownValueModel(name: 'silver', value: 'silver'),
+                      DropDownValueModel(name: 'non member', value: 'non member'),
+                    ],
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Pilih status keanggotaan';
+                      }
+                      return null;
+                    },
+                    onChanged: (val) {
+                      setState(() {
+                      });
+                    },
+                    textFieldDecoration: InputDecoration(
+                      labelText: 'Keanggotaan',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                    ),
+                  ),
                 ),
                 SizedBox(
-                  height: 10,
+                  height: 30,
                 ),
                 SizedBox(
                   width: double.infinity,
@@ -170,10 +206,13 @@ class _TambahpelangganState extends State<Tambahpelanggan> {
                           _namapelangganController.text.trim();
                       final Alamat = _alamatController.text.trim();
                       final NomorTelepon = _notlpController.text.trim();
+                      final Member = _memberController.dropDownValue?.value;
 
                       if (NamaPelanggan.isEmpty ||
                           Alamat.isEmpty ||
-                          NomorTelepon.isEmpty) {
+                          NomorTelepon.isEmpty ||
+                          Member == null || Member.isEmpty
+                          ) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
@@ -184,7 +223,7 @@ class _TambahpelangganState extends State<Tambahpelanggan> {
                         return;
                         }
                       await tambahpelanggan(
-                          NamaPelanggan, Alamat, NomorTelepon);
+                          NamaPelanggan, Alamat, NomorTelepon, Member);
                     },
                     child: Text(
                       "Tambah",

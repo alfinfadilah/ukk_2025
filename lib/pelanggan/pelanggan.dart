@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/beranda.dart';
@@ -31,6 +32,13 @@ class _PelangganListPageState extends State<PelangganListPage> {
         _searchQuery = _searchController.text.toLowerCase();
       });
     });
+    Timer.periodic(Duration(seconds: 1), (timer) {
+    if (mounted) {
+      fetch();
+    } else {
+      timer.cancel();
+    }
+  });
   }
 
   Future<void> fetch() async {
@@ -46,13 +54,14 @@ class _PelangganListPageState extends State<PelangganListPage> {
   }
 
   Future<void> tambahpelanggan(
-      String NamaPelanggan, String Alamat, String NomorTelepon) async {
+      String NamaPelanggan, String Alamat, String NomorTelepon, String Member) async {
     try {
       final response = await Supabase.instance.client.from('pelanggan').insert([
         {
           'NamaPelanggan': NamaPelanggan,
           'Alamat': Alamat,
-          'NomorTelepon': NomorTelepon
+          'NomorTelepon': NomorTelepon,
+          'Member' : Member
         }
       ]);
       if (response == null) {
@@ -223,9 +232,12 @@ class _PelangganListPageState extends State<PelangganListPage> {
                   final nama = pelanggan['NamaPelanggan']?.toLowerCase() ?? '';
                   final alamat = pelanggan['Alamat']?.toLowerCase() ?? '';
                   final nomor = pelanggan['NomorTelepon']?.toLowerCase() ?? '';
+                  final member = pelanggan['Member']?.toLowerCase() ?? '';
                   return nama.startsWith(_searchQuery) ||
                       alamat.contains(_searchQuery) ||
-                      nomor.startsWith(_searchQuery);
+                      nomor.startsWith(_searchQuery) ||
+                      member.contains(_searchQuery) 
+                      ;
                 }).length,
                 itemBuilder: (context, index) {
                   final filteredPelanggan = Pelanggan.where((pelanggan) {
@@ -234,9 +246,12 @@ class _PelangganListPageState extends State<PelangganListPage> {
                     final alamat = pelanggan['Alamat']?.toLowerCase() ?? '';
                     final nomor =
                         pelanggan['NomorTelepon']?.toLowerCase() ?? '';
+                        final member =
+                        pelanggan['Member']?.toLowerCase() ?? '';
                     return nama.contains(_searchQuery) ||
                         alamat.contains(_searchQuery) ||
-                        nomor.startsWith(_searchQuery);
+                        nomor.startsWith(_searchQuery) ||
+                        member.startsWith(_searchQuery);
                   }).toList();
 
                   final pelanggan = filteredPelanggan[index];
@@ -271,7 +286,13 @@ class _PelangganListPageState extends State<PelangganListPage> {
                           Text(
                             pelanggan['NomorTelepon'] ?? 'No Nomor',
                             style: TextStyle(fontSize: 12),
-                          )
+                          ),
+                          Text(
+                            pelanggan['Member'] ?? 'Non Member',
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
                         ],
                       ),
                       trailing: Row(
@@ -354,8 +375,8 @@ class _PelangganListPageState extends State<PelangganListPage> {
       context: context,
       builder: (context) {
         return Tambahpelanggan(
-            onAddpelanggan: (NamaPelanggan, Alamat, NomorTelepon) {
-          tambahpelanggan(NamaPelanggan, Alamat, NomorTelepon);
+            onAddpelanggan: (NamaPelanggan, Alamat, NomorTelepon, Member) {
+          tambahpelanggan(NamaPelanggan, Alamat, NomorTelepon, Member);
           Navigator.pop(context, true);
         });
       },

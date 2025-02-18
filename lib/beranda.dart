@@ -31,8 +31,6 @@ class _BerandaState extends State<Beranda> {
           .gte('TanggalPenjualan', todayStart)
           .lt('TanggalPenjualan', tomorrowStart);
 
-      print('Response dari Supabase: $response');
-
       if (response.isNotEmpty) {
         int total = 0;
         for (var item in response) {
@@ -146,6 +144,12 @@ class _BerandaState extends State<Beranda> {
         appBar: AppBar(
           centerTitle: true,
           title: Text('Beranda'),
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 30
+          ),
+          backgroundColor: const Color(0xFF003366),
+          foregroundColor: Colors.white,
         ),
         body: Center(
           child: Container(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/beranda.dart';
@@ -32,6 +33,13 @@ class _UserListPageState extends State<UserListPage> {
         _searchQuery = _searchController.text.toLowerCase();
       });
     });
+    Timer.periodic(Duration(seconds: 1), (timer) {
+    if (mounted) {
+      initialis();
+    } else {
+      timer.cancel();
+    }
+  });
   }
 
   Future<void> initialis() async {

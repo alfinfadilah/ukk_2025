@@ -41,6 +41,13 @@ class _ProdukState extends State<Produk> {
         _searchQuery = _searchController.text.toLowerCase();
       });
     });
+    Timer.periodic(Duration(seconds: 1), (timer) {
+    if (mounted) {
+      initializeData();
+    } else {
+      timer.cancel();
+    }
+  });
   }
 
   Future<void> initializeData() async {
@@ -342,7 +349,7 @@ class _ProdukState extends State<Produk> {
                   curve: Curves.easeOutQuad);
             },
             selectedIndex: selectedIndex,
-            activeColor: Colors.orange,
+            activeColor: Colors.deepOrange,
             barItems: [
               BarItem(
                 title: "Seller",
@@ -384,7 +391,7 @@ class _ProdukState extends State<Produk> {
           Icons.add,
           color: Colors.white,
         ),
-        backgroundColor: const Color(0xFF003366),
+        backgroundColor: const Color(0xFF003366), 
       ),
     );
   }

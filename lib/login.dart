@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_2025/beranda.dart';
-import 'package:ukk_2025/splashscreen.dart';
+import 'package:bcrypt/bcrypt.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -38,7 +38,6 @@ class _LoginState extends State<Login> {
           .from('user')
           .select()
           .eq('Username', _usernameController.text.trim())
-          .eq('Password', _passwordController.text.trim())
           .single();
 
       if (response != null) {
@@ -52,12 +51,26 @@ class _LoginState extends State<Login> {
                   )),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Username atau Password salah'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        final String hashedPassword = response['Password'];
+        final String enteredPassword = _passwordController.text.trim();
+
+        if (BCrypt.checkpw(enteredPassword, hashedPassword)) {
+          _usernameController.clear();
+          _passwordController.clear();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Beranda(user: response),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Username atau Password salah'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(

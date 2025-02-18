@@ -30,6 +30,22 @@ class _SalesPageState extends State<SalesPage> {
   final _userController = SingleValueDropDownController();
   Map<String, dynamic>? _selectedProduct;
 
+  static const Map<String, double> discountRates = {
+    'platinum': 0.10,
+    'gold': 0.05,
+    'silver': 0.02,
+    'non member': 0
+  };
+
+  int getTotalWithDiscount(int totalPrice, String? customerType) {
+    if (customerType != null && discountRates.containsKey(customerType)) {
+      double discount = discountRates[customerType]!;
+      return (totalPrice * (1 - discount)).toInt();
+    } else {
+      return totalPrice;
+    }
+  }
+
   Future<void> _executeSales() async {
     if (_userController.dropDownValue?.name == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -37,7 +53,8 @@ class _SalesPageState extends State<SalesPage> {
         backgroundColor: Colors.red,
         duration: Duration(milliseconds: 1500),
       ));
-    } if (_pelangganController.dropDownValue?.name == null) {
+    }
+    if (_pelangganController.dropDownValue?.name == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Pilih pelanggan', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.red,
@@ -50,13 +67,20 @@ class _SalesPageState extends State<SalesPage> {
         backgroundColor: Colors.red,
       ));
     } else {
+      var customerType = widget.pelanggan.firstWhere(
+          (pelanggan) =>
+              pelanggan['PelangganID'] ==
+              _pelangganController.dropDownValue?.value,
+          orElse: () => {})['Member'];
+
+      int totalSetelahDiskon = getTotalWithDiscount(_totalHarga, customerType);
       try {
         final penjualan = await Supabase.instance.client
             .from('penjualan')
             .insert({
               'PelangganID': _pelangganController.dropDownValue!.value,
               'Username': _userController.dropDownValue!.value,
-              'TotalHarga': _totalHarga
+              'TotalHarga': totalSetelahDiskon
             })
             .select()
             .single();
@@ -99,6 +123,21 @@ class _SalesPageState extends State<SalesPage> {
         ));
       }
     }
+  }
+
+  void _updateTotalWithDiscount() {
+    setState(() {
+      var pelanggan = widget.pelanggan.firstWhere(
+        (pelanggan) =>
+            pelanggan['PelangganID'] ==
+            _pelangganController.dropDownValue?.value,
+        orElse: () => null,
+      );
+
+      String? customerType = pelanggan?['Member'];
+
+      _totalHarga = getTotalWithDiscount(_totalHarga, customerType);
+    });
   }
 
   void _showAddProductDialog() {
@@ -229,21 +268,25 @@ class _SalesPageState extends State<SalesPage> {
                   Form(
                     key: _formKeyPenjualan,
                     child: DropDownTextField(
-                      enableSearch: true,
-                      controller: _pelangganController,
-                      dropDownList: [
-                        DropDownValueModel(
-                            name: 'Pelanggan non member', value: null),
-                        ...List.generate(widget.pelanggan.length, (index) {
-                          return DropDownValueModel(
-                              name:
-                                  '${widget.pelanggan[index]['NamaPelanggan']} (${widget.pelanggan[index]['NomorTelepon']})',
-                              value: widget.pelanggan[index]['PelangganID']);
-                        })
-                      ],
-                    ),
+                        enableSearch: true,
+                        controller: _pelangganController,
+                        dropDownList: [
+                          DropDownValueModel(
+                              name: 'Pelanggan non member', value: null),
+                          ...List.generate(widget.pelanggan.length, (index) {
+                            return DropDownValueModel(
+                                name:
+                                    '${widget.pelanggan[index]['NamaPelanggan']} (${widget.pelanggan[index]['NomorTelepon']})',
+                                value: widget.pelanggan[index]['PelangganID']);
+                          }).toList()
+                        ],
+                        onChanged: (value) {
+                          _updateTotalWithDiscount();
+                        }),
                   ),
-                  const SizedBox(height: 20,),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   Form(
                     key: _formKeyuser,
                     child: DropDownTextField(
@@ -252,8 +295,7 @@ class _SalesPageState extends State<SalesPage> {
                       dropDownList: [
                         ...List.generate(widget.user.length, (index) {
                           return DropDownValueModel(
-                              name:
-                                  '${widget.user[index]['Username']}',
+                              name: '${widget.user[index]['Username']}',
                               value: widget.user[index]['Username']);
                         })
                       ],
@@ -288,22 +330,94 @@ class _SalesPageState extends State<SalesPage> {
                                             Text(_selectedProduk[index]
                                                 ['NamaProduk']),
                                             Text(
-                                                'Jumlah dibeli:${_selectedProduk[index]['JumlahProduk']}'),
+                                                'Jumlah dibeli: ${_selectedProduk[index]['JumlahProduk']}'),
                                             Text(
-                                                'Subtotal:${_selectedProduk[index]['Subtotal']}')
+                                                'Subtotal: ${_selectedProduk[index]['Subtotal']}')
                                           ],
                                         ),
                                         const Spacer(),
-                                        IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _totalHarga -=
-                                                  (_selectedProduk[index]
-                                                      ['Subtotal'] as int);
-                                              _selectedProduk.removeAt(index);
-                                            });
-                                          },
-                                          icon: const Icon(Icons.delete),
+                                        Row(
+                                          children: [
+                                            IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (_selectedProduk[index]
+                                                          ['JumlahProduk'] >
+                                                      1) {
+                                                    _selectedProduk[index]
+                                                        ['JumlahProduk']--;
+                                                    _selectedProduk[index]
+                                                            ['Subtotal'] =
+                                                        _selectedProduk[index][
+                                                                'JumlahProduk'] *
+                                                            _selectedProduk[
+                                                                index]['Harga'];
+                                                    _totalHarga -=
+                                                        _selectedProduk[index]
+                                                            ['Harga'] as int;
+                                                  } else {
+                                                    _totalHarga -=
+                                                        _selectedProduk[index]
+                                                            ['Subtotal'] as int;
+                                                    _selectedProduk
+                                                        .removeAt(index);
+                                                  }
+                                                });
+                                              },
+                                              icon: const Icon(Icons.remove,
+                                                  color: Colors.red),
+                                            ),
+                                            Text(
+                                                '${_selectedProduk[index]['JumlahProduk']}'),
+                                            IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (_selectedProduk[index]
+                                                          ['JumlahProduk'] <
+                                                      _selectedProduk[index]
+                                                          ['Stok']) {
+                                                    _selectedProduk[index]
+                                                        ['JumlahProduk']++;
+                                                    _selectedProduk[index]
+                                                            ['Subtotal'] =
+                                                        _selectedProduk[index][
+                                                                'JumlahProduk'] *
+                                                            _selectedProduk[
+                                                                index]['Harga'];
+                                                    _totalHarga +=
+                                                        _selectedProduk[index]
+                                                            ['Harga'] as int;
+                                                  } else {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                            'Stok tidak mencukupi'),
+                                                        backgroundColor:
+                                                            Colors.red,
+                                                      ),
+                                                    );
+                                                  }
+                                                });
+                                              },
+                                              icon: const Icon(Icons.add,
+                                                  color: Colors.green),
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _totalHarga -=
+                                                      _selectedProduk[index]
+                                                          ['Subtotal'] as int;
+                                                  _selectedProduk
+                                                      .removeAt(index);
+                                                });
+                                              },
+                                              icon: const Icon(Icons.delete,
+                                                  color: Colors.black),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -321,8 +435,8 @@ class _SalesPageState extends State<SalesPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Text(
-                        'Total harga: $_totalHarga',
-                        style: const TextStyle(color: Colors.white),
+                        'Total harga: $_totalHarga - $discountRates',
+                        style: const TextStyle(color: Colors.black),
                       ),
                       ElevatedButton(
                         onPressed: _showAddProductDialog,
