@@ -329,13 +329,6 @@ class _ProdukState extends State<Produk> {
               fillColor: Colors.white,
               filled: true),
         ),
-        actions: [
-          IconButton(
-            onPressed: initializeData,
-            icon: const Icon(Icons.refresh),
-            color: Color(0xFFFAF3E0),
-          ),
-        ],
       ),
       body: Column(
         children: [

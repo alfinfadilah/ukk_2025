@@ -67,12 +67,12 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
     });
     myTabControl = TabController(length: 2, vsync: this);
     Timer.periodic(Duration(seconds: 1), (timer) {
-    if (mounted) {
-      fetchSales();
-    } else {
-      timer.cancel();
-    }
-  });
+      if (mounted) {
+        fetchSales();
+      } else {
+        timer.cancel();
+      }
+    });
   }
 
   @override
@@ -95,6 +95,7 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
           var tanggalPenjualan = DateFormat(
             'dd MMMM yyyy',
           ).format(DateTime.parse(filteredSales[index]['TanggalPenjualan']));
+          var diskon = filteredSales[index]['Diskon'] ?? 0;
           return Card(
             elevation: 15,
             child: Padding(
@@ -132,6 +133,16 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
                           Text('${penjualan[index]['TotalHarga']}')
                         ],
                       ),
+                      SizedBox(height: 5),
+                      Row(
+                        children: [
+                          Icon(FontAwesomeIcons.percentage),
+                          SizedBox(width: 30),
+                          Text(diskon > 0
+                              ? 'Diskon: ${diskon}'
+                              : 'Tidak ada diskon')
+                        ],
+                      ),
                       SizedBox(
                         height: 5,
                       ),
@@ -153,9 +164,8 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
                             width: 30,
                           ),
                           Text(penjualan[index]['Username'] == null
-                            ? ''
-                            : '${penjualan[index]['user']['Username']}'
-                          )
+                              ? ''
+                              : '${penjualan[index]['user']['Username']}')
                         ],
                       )
                     ],
@@ -254,7 +264,9 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
                     Text('${tanggalPenjualan}'),
                   ],
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 Row(
                   children: [
                     Icon(Icons.person),
@@ -298,13 +310,6 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
           ),
           foregroundColor: Colors.white,
           backgroundColor: const Color(0xFF003366),
-          actions: [
-            IconButton(
-              onPressed: fetchSales,
-              icon: const Icon(Icons.refresh),
-              color: Color(0xFFFAF3E0),
-            ),
-          ],
         ),
         drawer: Drawer(
             child: ListView(

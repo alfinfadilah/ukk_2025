@@ -67,9 +67,16 @@ class _PdfGeneratorState extends State<PdfGenerator> {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text("Struck Penjualan",
+              pw.Text("Struck Penjualan Waroeng Pocjok",
                   style: pw.TextStyle(
                       fontSize: 24, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 10),
+              pw.Row(
+                children: [
+                  pw.Text('Alamat : ', style: pw.TextStyle(fontSize: 18)),
+                  pw.Text('JL. Mawar,Desa Sukowilangun,Kec Kalipare', style: pw.TextStyle(fontSize: 18)),
+                ]
+              ),
               pw.SizedBox(height: 10),
               pw.Text("Pelanggan: $pelangganNama",
                   style: pw.TextStyle(fontSize: 18)),
@@ -92,10 +99,11 @@ class _PdfGeneratorState extends State<PdfGenerator> {
               ),
               pw.Table.fromTextArray(
                 data: [
+                  ['Total Diskon', responsetotal['Diskon'] ?? 0 .toString()],
                   ['Total Harga', responsetotal['TotalHarga'].toString()],
                 ],
                 border: pw.TableBorder.all(),
-                cellAlignment: pw.Alignment.centerLeft,
+                cellAlignment: pw.Alignment.center,
               ),
               pw.SizedBox(height: 10),
             ],

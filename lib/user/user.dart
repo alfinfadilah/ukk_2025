@@ -203,13 +203,6 @@ class _UserListPageState extends State<UserListPage> {
           ),
           backgroundColor: const Color(0xFF003366),
           foregroundColor: Colors.white,
-          actions: [
-            IconButton(
-              onPressed: initialis,
-              icon: const Icon(Icons.refresh),
-              color: Color(0xFFFAF3E0),
-            ),
-          ],
         ),
         body: user.isEmpty
             ? const Center(

@@ -215,13 +215,6 @@ class _PelangganListPageState extends State<PelangganListPage> {
           ),
           backgroundColor: const Color(0xFF003366),
           foregroundColor: Colors.white,
-          actions: [
-            IconButton(
-              onPressed: fetch,
-              icon: const Icon(Icons.refresh),
-              color: Color(0xFFFAF3E0),
-            ),
-          ],
         ),
         body: Pelanggan.isEmpty
             ? const Center(

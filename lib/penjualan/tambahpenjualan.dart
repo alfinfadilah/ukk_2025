@@ -26,6 +26,7 @@ class _SalesPageState extends State<SalesPage> {
   List<Map<String, dynamic>> _selectedProduk = [];
   List<Map<String, dynamic>> _detailSales = [];
   int _totalHarga = 0;
+  int _discountAmount = 0;
   final _pelangganController = SingleValueDropDownController();
   final _userController = SingleValueDropDownController();
   Map<String, dynamic>? _selectedProduct;
@@ -34,7 +35,6 @@ class _SalesPageState extends State<SalesPage> {
     'platinum': 0.10,
     'gold': 0.05,
     'silver': 0.02,
-    'non member': 0
   };
 
   int getTotalWithDiscount(int totalPrice, String? customerType) {
@@ -67,20 +67,32 @@ class _SalesPageState extends State<SalesPage> {
         backgroundColor: Colors.red,
       ));
     } else {
-      var customerType = widget.pelanggan.firstWhere(
-          (pelanggan) =>
-              pelanggan['PelangganID'] ==
-              _pelangganController.dropDownValue?.value,
-          orElse: () => {})['Member'];
+      var pelanggan = widget.pelanggan.firstWhere(
+        (pelanggan) =>
+            pelanggan['PelangganID'] ==
+            _pelangganController.dropDownValue?.value,
+        orElse: () => <String, dynamic>{},
+      );
 
-      int totalSetelahDiskon = getTotalWithDiscount(_totalHarga, customerType);
+      if (pelanggan.isEmpty) {
+        pelanggan = null;
+      }
+
+      _updateTotalWithDiscount();
+      int totalSetelahDiskon = _totalHarga;
+
+      print('🔹 Total Sebelum Diskon: $_totalHarga');
+      print('🔹 Diskon: $_discountAmount');
+      print('🔹 Total Setelah Diskon: $totalSetelahDiskon');
+
       try {
         final penjualan = await Supabase.instance.client
             .from('penjualan')
             .insert({
               'PelangganID': _pelangganController.dropDownValue!.value,
               'Username': _userController.dropDownValue!.value,
-              'TotalHarga': totalSetelahDiskon
+              'TotalHarga': _totalHarga,
+              'Diskon': _discountAmount
             })
             .select()
             .single();
@@ -131,12 +143,24 @@ class _SalesPageState extends State<SalesPage> {
         (pelanggan) =>
             pelanggan['PelangganID'] ==
             _pelangganController.dropDownValue?.value,
-        orElse: () => null,
+        orElse: () => <String, dynamic>{},
       );
 
-      String? customerType = pelanggan?['Member'];
+      if (pelanggan.isEmpty) {
+        pelanggan = null;
+      }
 
-      _totalHarga = getTotalWithDiscount(_totalHarga, customerType);
+      String? customerType = pelanggan != null ? pelanggan['Member'] : null;
+      int totalSebelumDiskon =
+          _selectedProduk.fold(0, (sum, item) => sum + item['Subtotal'] as int);
+
+      if (customerType != null && discountRates.containsKey(customerType)) {
+        _discountAmount =
+            (totalSebelumDiskon * discountRates[customerType]!).round();
+      } else {
+        _discountAmount = 0;
+      }
+      _totalHarga = totalSebelumDiskon - _discountAmount;
     });
   }
 
@@ -228,6 +252,7 @@ class _SalesPageState extends State<SalesPage> {
                       'Jenis': _selectedProduct!['Jenis']
                     });
                     _totalHarga += subtotal;
+                    _updateTotalWithDiscount();
                   });
 
                   Navigator.of(context).pop();
@@ -281,7 +306,9 @@ class _SalesPageState extends State<SalesPage> {
                           }).toList()
                         ],
                         onChanged: (value) {
-                          _updateTotalWithDiscount();
+                          if (value != null) {
+                            _updateTotalWithDiscount();
+                          }
                         }),
                   ),
                   const SizedBox(
@@ -355,6 +382,7 @@ class _SalesPageState extends State<SalesPage> {
                                                     _totalHarga -=
                                                         _selectedProduk[index]
                                                             ['Harga'] as int;
+                                                    _updateTotalWithDiscount();
                                                   } else {
                                                     _totalHarga -=
                                                         _selectedProduk[index]
@@ -387,6 +415,7 @@ class _SalesPageState extends State<SalesPage> {
                                                     _totalHarga +=
                                                         _selectedProduk[index]
                                                             ['Harga'] as int;
+                                                    _updateTotalWithDiscount();
                                                   } else {
                                                     ScaffoldMessenger.of(
                                                             context)
@@ -434,9 +463,25 @@ class _SalesPageState extends State<SalesPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text(
-                        'Total harga: $_totalHarga - $discountRates',
-                        style: const TextStyle(color: Colors.black),
+                      Column(
+                        children: [
+                          Text(
+                            'Total sebelum diskon: ${_selectedProduk.fold(0, (sum, item) => sum + item['Subtotal'] as int)}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'Diskon yang didapat: $_discountAmount',
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'Total setelah diskon: $_totalHarga',
+                            style: const TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
                       ElevatedButton(
                         onPressed: _showAddProductDialog,
